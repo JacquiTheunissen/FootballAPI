@@ -3,9 +3,7 @@ using FootballAPI.Context;
 using FootballAPI.Models;
 using FootballAPI.Models.Common;
 using FootballAPI.Models.Requests;
-using FootballAPI.Validation;
 using Microsoft.Extensions.Logging;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
