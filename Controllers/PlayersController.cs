@@ -36,14 +36,14 @@ namespace FootballAPI.Controllers
 
         [HttpPost]
         [Route(nameof(AddToTeam))]
-        public OperationOutcome AddToTeam(AddPlayerToTeamRequest addPlayerToTeamRequest)
+        public OperationOutcome AddToTeam(int playerId, int teamId)
         {
-            return Do(() => _playersRepository.AddToTeam(addPlayerToTeamRequest));
+            return Do(() => _playersRepository.AddToTeam(playerId, teamId));
         }
 
         [HttpGet]
         [Route(nameof(Get))]
-        public OperationOutcome Get(int playerId)
+        public QueryOutcome<Player> Get(int playerId)
         {
             return Do(() => _playersRepository.Get(playerId));
         }

@@ -1,8 +1,10 @@
-﻿using FootballAPI.Models.Common;
+﻿using FootballAPI.Models;
+using FootballAPI.Models.Common;
 using FootballAPI.Models.Requests;
 using FootballAPI.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
 
 namespace FootballAPI.Controllers
 {
@@ -32,11 +34,39 @@ namespace FootballAPI.Controllers
             return Do(() => _teamsRepository.Update(updateTeamRequest));
         }
 
+        [HttpPost]
+        [Route(nameof(AddToStadium))]
+        public OperationOutcome AddToStadium(int teamId, int stadiumId)
+        {
+            return Do(() => _teamsRepository.AddToStadium(teamId, stadiumId));
+        }
+
         [HttpGet]
         [Route(nameof(Get))]
-        public OperationOutcome Get(GetTeamRequest getTeamRequest)
+        public OperationOutcome Get(int teamId)
         {
-            return Do(() => _teamsRepository.Get(getTeamRequest));
+            return Do(() => _teamsRepository.Get(teamId));
+        }
+
+        [HttpGet]
+        [Route(nameof(GetAll))]
+        public QueryOutcome<IEnumerable<Team>> GetAll()
+        {
+            return Do(() => _teamsRepository.GetAll());
+        }
+
+        [HttpPost]
+        [Route(nameof(RemoveFromCurrentStadium))]
+        public OperationOutcome RemoveFromCurrentStadium(int teamId)
+        {
+            return Do(() => _teamsRepository.RemoveFromCurrentStadium(teamId));
+        }
+
+        [HttpPost]
+        [Route(nameof(Deactivate))]
+        public OperationOutcome Deactivate(int teamId)
+        {
+            return Do(() => _teamsRepository.Deactivate(teamId));
         }
     }
 }

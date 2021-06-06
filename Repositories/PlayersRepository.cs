@@ -3,11 +3,11 @@ using FootballAPI.Context;
 using FootballAPI.Models;
 using FootballAPI.Models.Common;
 using FootballAPI.Models.Requests;
+using FootballAPI.Validation;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace FootballAPI.Repositories
 {
@@ -30,6 +30,13 @@ namespace FootballAPI.Repositories
         {
             return Do(() =>
             {
+                var playerExists = _footballDbContext.Players.Any(p => p.Name == addPlayerRequest.Name && p.Surname == addPlayerRequest.Surname && p.IsActive);
+
+                if (playerExists)
+                {
+                    return new OperationOutcome { Errors = $"There is already a player registered with the name {addPlayerRequest.Name} and surname {addPlayerRequest.Surname}", IsSuccessful = false };
+                }
+
                 var player = new Player
                 {
                     Name = addPlayerRequest.Name,
@@ -51,18 +58,18 @@ namespace FootballAPI.Repositories
         {
             return Do(() =>
             {
-                var playerToEdit = _footballDbContext.Find<Player>(updatePlayerRequest.Id);
+                var player = _footballDbContext.Find<Player>(updatePlayerRequest.Id);
 
-                if (playerToEdit == null)
+                if (player == null)
                 {
-                    throw new Exception($"Could not find record with Id {updatePlayerRequest.Id}");
+                    return new OperationOutcome { Errors = $"Could not find player with record Id {updatePlayerRequest.Id}", IsSuccessful = false };
                 }
 
-                playerToEdit.Name = updatePlayerRequest.Name != null ? updatePlayerRequest.Name : playerToEdit.Name;
-                playerToEdit.Surname = updatePlayerRequest.Surname != null ? updatePlayerRequest.Surname : playerToEdit.Surname;
-                playerToEdit.Height = updatePlayerRequest.Height != 0.00M ? updatePlayerRequest.Height : playerToEdit.Height;
-                playerToEdit.Weight = updatePlayerRequest.Weight != 0.00M ? updatePlayerRequest.Weight : playerToEdit.Weight;
-                playerToEdit.Age = updatePlayerRequest.Age != 0 ? updatePlayerRequest.Age : playerToEdit.Age;
+                player.Name = updatePlayerRequest.Name != null ? updatePlayerRequest.Name : player.Name;
+                player.Surname = updatePlayerRequest.Surname != null ? updatePlayerRequest.Surname : player.Surname;
+                player.Height = updatePlayerRequest.Height != 0.00M ? updatePlayerRequest.Height : player.Height;
+                player.Weight = updatePlayerRequest.Weight != 0.00M ? updatePlayerRequest.Weight : player.Weight;
+                player.Age = updatePlayerRequest.Age != 0 ? updatePlayerRequest.Age : player.Age;
 
                 _footballDbContext.SaveChanges();
                 return SuccessfulOutcome();
@@ -79,20 +86,31 @@ namespace FootballAPI.Repositories
             });
         }
 
-        public OperationOutcome AddToTeam(AddPlayerToTeamRequest addPlayerToTeamRequest)
+        public OperationOutcome AddToTeam(int playerId, int teamId)
         {
             return Do(() =>
             {
-                var playerToEdit = _footballDbContext.Find<Player>(addPlayerToTeamRequest.PlayerId);
+                var player = _footballDbContext.Find<Player>(playerId);
+                var team = _footballDbContext.Find<Team>(teamId);
 
-                if (playerToEdit == null)
+                if (player == null)
                 {
-                    throw new Exception($"Could not find record with Id {addPlayerToTeamRequest.PlayerId}");
+                    return new OperationOutcome { Errors = $"Could not find player with record Id {playerId}", IsSuccessful = false };
                 }
 
-                playerToEdit.TeamId = addPlayerToTeamRequest.TeamId != 0 ? addPlayerToTeamRequest.TeamId : playerToEdit.TeamId;
+                if (team == null)
+                {
+                    return new OperationOutcome { Errors = $"Could not find team with record Id {teamId}", IsSuccessful = false };
+                }
 
+                if (player.TeamId == teamId)
+                {
+                    return new OperationOutcome { Errors = "This player is already linked to the selected team.", IsSuccessful = false };
+                }
+
+                player.TeamId = teamId;
                 _footballDbContext.SaveChanges();
+
                 return SuccessfulOutcome();
             });
         }
@@ -111,16 +129,21 @@ namespace FootballAPI.Repositories
         {
             return Do(() =>
             {
-                var playerToEdit = _footballDbContext.Find<Player>(playerId);
+                var player = _footballDbContext.Find<Player>(playerId);
 
-                if (playerToEdit == null)
+                if (player == null)
                 {
-                    throw new Exception($"Could not find record with Id {playerId}");
+                    return new OperationOutcome { Errors = $"Could not find player with record Id {playerId}", IsSuccessful = false };
                 }
 
-                playerToEdit.TeamId = null;
+                if (player.TeamId == null)
+                {
+                    return new OperationOutcome { Errors = "Player not currently assigned to any teams.", IsSuccessful = false };
+                }
 
+                player.TeamId = null;
                 _footballDbContext.SaveChanges();
+
                 return SuccessfulOutcome();
             });
         }
@@ -129,16 +152,16 @@ namespace FootballAPI.Repositories
         {
             return Do(() =>
             {
-                var player = _footballDbContext.Find<Player>(playerId);
+                var player = _footballDbContext.Players.FirstOrDefault(p => p.Id == playerId && p.IsActive);
 
                 if (player == null)
                 {
-                    throw new Exception($"Could not find record with Id {playerId}");
+                    return new OperationOutcome { Errors = $"Could not find an active player with record Id {playerId}", IsSuccessful = false };
                 }
 
                 player.IsActive = false;
-
                 _footballDbContext.SaveChanges();
+
                 return SuccessfulOutcome();
             });
         }

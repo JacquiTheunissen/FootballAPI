@@ -30,10 +30,22 @@ namespace FootballAPI.Repositories
         {
             return Do(() =>
             {
+                var stadiumExists = _footballDbContext.Stadiums.Any(p => p.Name == addStadiumRequest.Name && p.IsActive);
+
+                if (stadiumExists)
+                {
+                    return new OperationOutcome { Errors = $"There is already a stadium registered with the name {addStadiumRequest.Name}", IsSuccessful = false };
+                }
+
                 var stadium = new Stadium
                 {
                     Name = addStadiumRequest.Name,
                     Capacity = addStadiumRequest.Capacity,
+                    AddressLine1 = addStadiumRequest.AddressLine1,
+                    AddressLine2 = addStadiumRequest.AddressLine2,
+                    Suburb = addStadiumRequest.Suburb,
+                    Province = addStadiumRequest.Province,
+                    PostalCode = addStadiumRequest.PostalCode,
                     IsActive = true,
                 };
 
@@ -48,28 +60,61 @@ namespace FootballAPI.Repositories
         {
             return Do(() =>
             {
-                var stadiumToEdit = _footballDbContext.Find<Stadium>(updateStadiumRequest.Id);
+                var stadium = _footballDbContext.Find<Stadium>(updateStadiumRequest.Id);
 
-                if (stadiumToEdit == null)
+                if (stadium == null)
                 {
-                    throw new Exception($"Could not find record with Id {updateStadiumRequest.Id}");
+                    return new OperationOutcome { Errors = $"Could not find record with Id {updateStadiumRequest.Id}", IsSuccessful = false };
                 }
 
-                stadiumToEdit.Name = updateStadiumRequest.Name != null ? updateStadiumRequest.Name : stadiumToEdit.Name;
-                stadiumToEdit.Capacity = updateStadiumRequest.Capacity != 0 ? updateStadiumRequest.Capacity : stadiumToEdit.Capacity;
+                stadium.Name = updateStadiumRequest.Name != null ? updateStadiumRequest.Name : stadium.Name;
+                stadium.Capacity = updateStadiumRequest.Capacity != 0 ? updateStadiumRequest.Capacity : stadium.Capacity;
+                stadium.AddressLine1 = updateStadiumRequest.AddressLine1 != null ? updateStadiumRequest.AddressLine1 : stadium.AddressLine1;
+                stadium.AddressLine2 = updateStadiumRequest.AddressLine2 != null ? updateStadiumRequest.AddressLine2 : stadium.AddressLine2;
+                stadium.Suburb = updateStadiumRequest.Suburb != null ? updateStadiumRequest.Suburb : stadium.Suburb;
+                stadium.Province = updateStadiumRequest.Province != null ? updateStadiumRequest.Province : stadium.Province;
+                stadium.PostalCode = updateStadiumRequest.PostalCode != null ? updateStadiumRequest.PostalCode : stadium.PostalCode;
 
                 _footballDbContext.SaveChanges();
                 return SuccessfulOutcome();
             });
         }
 
-        public QueryOutcome<Stadium> Get(GetStadiumRequest getStadiumRequest)
+        public QueryOutcome<Stadium> Get(int stadiumId)
         {
             return Do(() =>
             {
-                var stadium = _footballDbContext.Find<Stadium>(getStadiumRequest.Id);
+                var stadium = _footballDbContext.Find<Stadium>(stadiumId);
                 var response = _mapper.Map<Stadium>(stadium);
                 return SuccessfulQuery(response);
+            });
+        }
+
+        public QueryOutcome<IEnumerable<Stadium>> GetAll()
+        {
+            return Do(() =>
+            {
+                var stadiums = _footballDbContext.Stadiums;
+                var response = _mapper.Map<IEnumerable<Stadium>>(stadiums).OrderBy(x => x.Name).ToList();
+                return SuccessfulQuery(response.AsEnumerable());
+            });
+        }
+
+        public OperationOutcome Deactivate(int stadiumId)
+        {
+            return Do(() =>
+            {
+                var team = _footballDbContext.Stadiums.FirstOrDefault(p => p.Id == stadiumId && p.IsActive);
+
+                if (team == null)
+                {
+                    return new OperationOutcome { Errors = $"Could not find record for stadium with Id {stadiumId}", IsSuccessful = false };
+                }
+
+                team.IsActive = false;
+
+                _footballDbContext.SaveChanges();
+                return SuccessfulOutcome();
             });
         }
     }

@@ -1,9 +1,11 @@
-﻿using FootballAPI.Models.Common;
+﻿using FootballAPI.Models;
+using FootballAPI.Models.Common;
 using FootballAPI.Models.Requests;
 using FootballAPI.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
 
 namespace FootballAPI.Controllers
 {
@@ -35,9 +37,23 @@ namespace FootballAPI.Controllers
 
         [HttpGet]
         [Route(nameof(Get))]
-        public OperationOutcome Get(GetStadiumRequest getStadiumRequest)
+        public QueryOutcome<Stadium> Get(int stadiumId)
         {
-            return Do(() => _stadiumsRepository.Get(getStadiumRequest));
+            return Do(() => _stadiumsRepository.Get(stadiumId));
+        }
+
+        [HttpGet]
+        [Route(nameof(GetAll))]
+        public QueryOutcome<IEnumerable<Stadium>> GetAll()
+        {
+            return Do(() => _stadiumsRepository.GetAll());
+        }
+
+        [HttpPost]
+        [Route(nameof(Deactivate))]
+        public OperationOutcome Deactivate(int stadiumId)
+        {
+            return Do(() => _stadiumsRepository.Deactivate(stadiumId));
         }
     }
 }

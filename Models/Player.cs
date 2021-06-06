@@ -19,9 +19,8 @@ namespace FootballAPI.Models
 
         public int? TeamId { get; set; }
 
+        public Team Team { get; set; }
+
         public bool IsActive { get; set; }
-
-
-        public virtual Team Team { get; set; }
     }
 }

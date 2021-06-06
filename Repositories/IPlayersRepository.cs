@@ -13,7 +13,7 @@ namespace FootballAPI.Repositories
 
         QueryOutcome<Player> Get(int playerId);
 
-        OperationOutcome AddToTeam(AddPlayerToTeamRequest addPlayerToTeamRequest);
+        OperationOutcome AddToTeam(int playerId, int teamId);
 
         QueryOutcome<IEnumerable<Player>> GetAll();
 

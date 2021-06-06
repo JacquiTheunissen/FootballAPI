@@ -1,6 +1,7 @@
 ﻿using FootballAPI.Models;
 using FootballAPI.Models.Common;
 using FootballAPI.Models.Requests;
+using System.Collections.Generic;
 
 namespace FootballAPI.Repositories
 {
@@ -10,6 +11,10 @@ namespace FootballAPI.Repositories
 
         OperationOutcome Update(UpdateStadiumRequest updateStadiumRequest);
 
-        QueryOutcome<Stadium> Get(GetStadiumRequest getStadiumRequest);
+        QueryOutcome<Stadium> Get(int stadiumId);
+
+        QueryOutcome<IEnumerable<Stadium>> GetAll();
+
+        OperationOutcome Deactivate(int stadiumId);
     }
 }

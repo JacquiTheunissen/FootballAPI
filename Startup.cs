@@ -1,6 +1,7 @@
 using FootballAPI.Context;
 using FootballAPI.Profiles;
 using FootballAPI.Repositories;
+using FootballAPI.Validation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -33,6 +34,10 @@ namespace FootballAPI
             services.AddTransient<IPlayersRepository, PlayersRepository>();
             services.AddTransient<ITeamsRepository, TeamsRepository>();
             services.AddTransient<IStadiumsRepository, StadiumsRepository>();
+
+            services.AddTransient<IPlayerValidation, PlayerValidation>();
+            services.AddTransient<ITeamValidation, TeamValidation>();
+            services.AddTransient<IStadiumValidation, StadiumValidation>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
