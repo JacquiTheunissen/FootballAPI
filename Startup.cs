@@ -22,7 +22,7 @@ namespace FootballAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<FootballDbContext>(options => options.UseSqlServer(SqlAlias.Aliases.Map(Configuration.GetConnectionString("DefaultConnection"))));
+            services.AddDbContext<FootballDbContext>(opt => opt.UseInMemoryDatabase("FootballDb"));
             services.AddSwaggerGen();
             services.AddDbContext<FootballDbContext>();
             services.AddControllers();
@@ -38,6 +38,8 @@ namespace FootballAPI
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            //System.Data.Entity.Database.SetInitializer(new DatabaseInitializer());
+
             app.UseSwagger();
 
             if (env.IsDevelopment())

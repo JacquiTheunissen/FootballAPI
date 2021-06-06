@@ -27,12 +27,6 @@ namespace FootballAPI.Context
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            //    modelBuilder.Entity<Player>()
-            //    .HasOne(a => a.Team);
-
-            //    modelBuilder.Entity<Team>()
-            //    .HasOne(a => a.Stadium);
-
             modelBuilder.Entity<Player>(entity =>
             {
                 entity.Property(e => e.Id).ValueGeneratedOnAdd();
