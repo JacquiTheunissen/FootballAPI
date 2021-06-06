@@ -69,13 +69,77 @@ namespace FootballAPI.Repositories
             });
         }
 
-        public QueryOutcome<Player> Get(GetPlayerRequest getPlayerRequest)
+        public QueryOutcome<Player> Get(int playerId)
         {
             return Do(() =>
             {
-                var player = _footballDbContext.Find<Player>(getPlayerRequest.Id);
+                var player = _footballDbContext.Find<Player>(playerId);
                 var response = _mapper.Map<Player>(player);
                 return SuccessfulQuery(response);
+            });
+        }
+
+        public OperationOutcome AddToTeam(AddPlayerToTeamRequest addPlayerToTeamRequest)
+        {
+            return Do(() =>
+            {
+                var playerToEdit = _footballDbContext.Find<Player>(addPlayerToTeamRequest.PlayerId);
+
+                if (playerToEdit == null)
+                {
+                    throw new Exception($"Could not find record with Id {addPlayerToTeamRequest.PlayerId}");
+                }
+
+                playerToEdit.TeamId = addPlayerToTeamRequest.TeamId != 0 ? addPlayerToTeamRequest.TeamId : playerToEdit.TeamId;
+
+                _footballDbContext.SaveChanges();
+                return SuccessfulOutcome();
+            });
+        }
+
+        public QueryOutcome<IEnumerable<Player>> GetAll()
+        {
+            return Do(() =>
+            {
+                var players = _footballDbContext.Players;
+                var response = _mapper.Map<IEnumerable<Player>>(players).OrderBy(x => x.Name).ToList();
+                return SuccessfulQuery(response.AsEnumerable());
+            });
+        }
+
+        public OperationOutcome RemoveFromCurrentTeam(int playerId)
+        {
+            return Do(() =>
+            {
+                var playerToEdit = _footballDbContext.Find<Player>(playerId);
+
+                if (playerToEdit == null)
+                {
+                    throw new Exception($"Could not find record with Id {playerId}");
+                }
+
+                playerToEdit.TeamId = null;
+
+                _footballDbContext.SaveChanges();
+                return SuccessfulOutcome();
+            });
+        }
+
+        public OperationOutcome Deactivate(int playerId)
+        {
+            return Do(() =>
+            {
+                var player = _footballDbContext.Find<Player>(playerId);
+
+                if (player == null)
+                {
+                    throw new Exception($"Could not find record with Id {playerId}");
+                }
+
+                player.IsActive = false;
+
+                _footballDbContext.SaveChanges();
+                return SuccessfulOutcome();
             });
         }
     }

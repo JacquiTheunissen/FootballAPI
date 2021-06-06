@@ -1,6 +1,9 @@
 using FootballAPI.Context;
+using FootballAPI.Profiles;
+using FootballAPI.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -19,9 +22,17 @@ namespace FootballAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDbContext<FootballDbContext>(options => options.UseSqlServer(SqlAlias.Aliases.Map(Configuration.GetConnectionString("DefaultConnection"))));
             services.AddSwaggerGen();
             services.AddDbContext<FootballDbContext>();
             services.AddControllers();
+            services.AddAutoMapper(typeof(PlayerProfile));
+            services.AddAutoMapper(typeof(TeamProfile));
+            services.AddAutoMapper(typeof(StadiumProfile));
+
+            services.AddTransient<IPlayersRepository, PlayersRepository>();
+            services.AddTransient<ITeamsRepository, TeamsRepository>();
+            services.AddTransient<IStadiumsRepository, StadiumsRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

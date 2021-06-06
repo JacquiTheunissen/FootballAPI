@@ -12,12 +12,19 @@ namespace FootballAPI.Models
 
         public int Capacity { get; set; }
 
-        public List<Team> Teams { get; set; }
+        public string AddressLine1 { get; set; }
 
-        public int? LocationId { get; set; }
+        public string AddressLine2 { get; set; }
 
-        public Location Location { get; set; }
+        public string Suburb { get; set; }
+
+        public string Province { get; set; }
+
+        public string PostalCode { get; set; }
 
         public bool IsActive { get; set; }
+
+
+        public virtual List<Team> Teams { get; set; }
     }
 }

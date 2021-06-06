@@ -12,12 +12,13 @@ namespace FootballAPI.Models
 
         public string Manager { get; set; }
 
-        public List<Player> Players { get; set; }
-
         public int? StadiumId { get; set; }
 
         public Stadium Stadium { get; set; }
 
         public bool IsActive { get; set; }
+
+
+        public virtual List<Player> Players { get; set; }
     }
 }
